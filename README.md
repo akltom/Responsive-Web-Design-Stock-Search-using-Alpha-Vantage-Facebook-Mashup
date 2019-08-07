@@ -1,0 +1,2 @@
+# Responsive-Web-Design-Stock-Search-using-Alpha-Vantage-Facebook-Mashup
+• Become familiar with the AJAX and JSON technologies • Use a combinaRon of HTML5, Bootstrap, JQuery, Angular, and PHP/Node.js • Get hands-on experience in Google Cloud App Engine and Amazon Web Services • Get hands-on experience on how to use Bootstrap to enhance the user experience • Provide an interface to perform stock search using Alpha Vantage and post details to Facebook
