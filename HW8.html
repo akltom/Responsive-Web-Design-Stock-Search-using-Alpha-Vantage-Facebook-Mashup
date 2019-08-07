@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+	
+	<head>
+		
+		<meta charset="utf-8">
+		  <meta name="viewport" content="width=device-width, initial-scale=1">
+		  <!-- Customization: col-xs-offset-0_5 col-sm-offset-9_5 col-lg-offset-8_5 -->
+			<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+			<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+			<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+		  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+		<script src="https://code.highcharts.com/stock/highstock.js"></script>
+		<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+		
+		
+		
+		<script src="js/jquery.min.js"></script> <!-- these 3 are for angular js-->
+    	<script src="js/angular.min.js"></script>
+    	<script src="js/kendo.all.min.js"></script>
+		<link rel="stylesheet" href="styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.min.css" />
+    <link rel="stylesheet" href="styles/kendo.default.mobile.min.css" />
+		<!--import angular AJ link-->
+		
+		
+		
+		<style>
+			img {
+			 max-width:100%;
+			}
+			#list {
+				position: fixed;
+				background-color: white;
+			}
+		/*background-image*/    
+			body {
+			background-color: #144565;
+			-webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;}
+		/*input form*/
+			#topic {
+				background-color:#EDEDED;
+				padding: 5px 10px 0px 10px;
+
+			}
+			#section, #result {background-color:white; margin: 0 auto; margin-top:10px; width: 80%; padding: 5px 10px 0px 10px;}
+				#toggleline{
+					margin-left:10px;
+				}
+			.control-label, #radioInput, #power, #favorlist {color: black;} 
+			/*tab style*/  
+			.carousel-control {
+				position: absolute;
+				top: 50%; /* pushes the icon in the middle of the height */
+				z-index: 5;
+				display: inline-block;
+				}
+			.decrease{
+				color:red;
+			}
+			.increase{
+				color:green;
+			}
+		</style>
+		
+		
+		
+		
+	</head>
+	
+	
+	
+	
+	<body>
+		
+		<div id="section" >
+		<div class="row">
+		<h4 align="center">Stock Market Search</h4>
+		<!--<form name="form" class="form-inline" >  i add the query for                 -->     
+		<form action = 'query' name="form" class="form-inline" >
+			<div class="col-lg-3"  style="vertical-align: top; margin-top: 5px;" >
+				<label for="name" class="control-label">Enter Stock Ticket Symbol: <span id="star">*</span></label>
+				</div>
+			<div class="col-lg-6"  style="vertical-align: top; margin-top: 5px;" >
+				<input type="text" size="70" name="text" class="form-control" id="text" placeholder="e.g. AAPL"><br><span id="addInput"></span>
+			<div id="list" style="vertical-align: top;z-index:1;"></div>
+			</div>
+
+			<div class="col-lg-3" style="vertical-align: top; margin-top: 5px;" align="left">
+			<button style="width:110px;" type="button" class="btn btn-primary" name="submit" id = "btn1" onclick="return checkEmpty()">
+			<span class="glyphicon glyphicon-search" aria-hidden="true"></span> Get Quote
+			</button>
+			<button id ="refresh"style="width:85px;" type="button" class="btn btn-default" onclick="clearForm()">
+			<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Clear
+			</button>
+			<br><br>
+			
+			</div>
+
+		</form>
+		</div>
+			<div><br></div>
+		</div>
+		
+		
+		
+		<div id="col-md-12"><hr>
+  		<br><br></div>
+		
+		
+		<!-------------form------------->
+<!-- Carousel and result -->
+    <div id="result">
+        <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false" data-wrap="false">
+
+    <!-- Wrapper for slides -->
+        <div class="carousel-inner" role="listbox">
+<!-----------first item-------------->
+            
+            <div class="item active">
+                <div class = "panel panel-default">
+                    <div class="row" id="topic">
+                        <div class = "col-sm-6 col-md-6 col-xs-6" style="vertical-align: top; margin-top: -10px;"><span id="favorlist"><h3>Favorite List</h3></span>
+                        </div>
+                        <div class = "col-sm-6 col-md-6 col-xs-6" style="vertical-align: top; margin-top: 5px;" align="right">
+                            <label><input id="toggle-event" type="checkbox" data-toggle="toggle"></label>
+                            <button type="button" id="reclear" class="btn btn-default btn-lg" id="myBtn" ><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+                            <button type="button" id="myBtn2" class="btn btn-default btn-lg" id="myBtn"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                        </div>
+                    </div>
+                <div class = "row">
+                    <div class="col-sm-12 col-md-12 col-xs-12"  >
+                        <table class='table table-striped' id="favorTable"><tr><th>Symbol</th><th>Company Name </th><th>Stock Price</th><th>Change(Change Percent)</th><th>Market Cap</th><th></th></tr></table>
+                    </div>
+                </div>
+                <div class = "row">
+                    <div id="firstresult" class="col-sm-12 col-md-12 col-xs-12">
+                    
+                    </div>
+                </div>
+            </div> 
+        </div>
+<!-----------second item--------------> 
+
+    <div class="item">
+        <div class = "panel panel-default">
+            <div class = "row" style="background-color:#EDEDED;">
+                <div class = "col-sm-6 col-md-6 col-xs-6" style="vertical-align: top; margin-top: 5px;" align="left">
+                    <button type="button" id="myBtn" class="btn btn-default btn-lg" id="myBtn"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                </div>
+                <div class = "col-sm-6 col-md-6 col-xs-6" style="vertical-align: top;margin-top: -10px;" align="left"><span id="favorlist"><h3>Stock Details</h3></span></div>
+            </div>
+        </div>
+    </div>
+</div>
+    <!---------------control three hide and show part-------->
+         <script>
+function displayFirst() {
+    /*document.getElementById("one").style.display="block";
+    document.getElementById("two").style.display="none";
+    document.getElementById("third").style.display="none";
+    //alert("!!!"); */     
+    
+    }
+function displaySecond() {
+    /*document.getElementById("one").style.display="none";
+    document.getElementById("two").style.display="block";
+    document.getElementById("third").style.display="none";
+    //alert("!!!");    */  
+    
+    }
+function displayThird() {
+    /*document.getElementById("one").style.display="none";
+    document.getElementById("two").style.display="none";
+    document.getElementById("third").style.display="block";
+   // alert("!!!");   */   
+    
+    }    
+</script>
+<div class="row">
+    <div class="container">
+        <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="pill" href="#menu1"><span class="glyphicon glyphicon-time">Current Stock</span></a></li>
+            <li><a data-toggle="pill" href="#menu2"><span class="glyphicon glyphicon-stats">Historical Chart</span></a></li>
+            <li><a data-toggle="pill" href="#menu3"><span class="glyphicon glyphicon-link">News Feeds</span></a></li>
+        </ul>
+    </div>
+</div> 
+                <div id="col-sm-12 col-md-12 col-xs-12"><hr></div>
+            <div class="row">
+                <div class="col-sm-6 col-md-6 col-xs-6" align="left">
+                    <h5><b>&nbsp;&nbsp;Stock Details</b></h5>
+                </div>
+                <div class="col-sm-6 col-md-6 col-xs-6" align="right">
+                    <a href="#"><img id="fb" src="fb.png" WIDTH=40 HEIGHT=40 onclick=""></a>
+                    <button class="btn btn-secondary active" role="button" onclick="changeImage()"><img id="favorite" src="emptyStar.png" width="30" height="30"></button>
+                </div>
+            </div>
+        
+    <!---------------control three hide and show part-------->
+<div class="tab-content">
+    <div id="menu1" class="tab-pane fade in active">
+      <div class = "row" id="one">
+            <div  class = "col-sm-12 col-md-6 col-xs-12" >
+                <div id="secondresult" ></div>
+            </div>
+            <div  class = "col-sm-12 col-md-6 col-xs-12">
+                <div id="chartDiv"></div>
+                
+            </div>
+        </div>
+    </div>
+    <div id="menu2" class="tab-pane fade">
+      <div class = "row" id="two">
+                <div  class = "col-sm-12 col-md-12 col-xs-12" id="HightChartStock">
+            </div>
+    </div>
+    </div>
+    <div id="menu3" class="tab-pane fade">
+      <div class = "row" id="third">
+                <div  class = "col-sm-12 col-md-12 col-xs-12" >
+                    <div></div>
+                </div>
+            </div>
+    </div>
+  </div>
+	</div>
+	</div>
+		
+		
+		
+	 <!-----------------hardcode     testing---------->
+		
+		
+		<script>
+		
+	var hardCodeData= {"Meta Data":{"1. Information":"Daily Prices (open, high, low, close) and Volumes","2. Symbol":"aapl","3. Last Refreshed":"2017-11-03","4. Output Size":"Compact","5. Time Zone":"US/Eastern"},"Time Series (Daily)":{"2017-11-03":{"1. open":"174.0000","2. high":"174.2600","3. low":"171.1200","4. close":"172.5000","5. volume":"58683826"},"2017-11-02":{"1. open":"166.6000","2. high":"168.5000","3. low":"165.2800","4. close":"168.1100","5. volume":"32710040"},"2017-11-01":{"1. open":"169.8700","2. high":"169.9400","3. low":"165.6100","4. close":"166.8900","5. volume":"33100847"},"2017-10-31":{"1. open":"167.9000","2. high":"169.6500","3. low":"166.9400","4. close":"169.0400","5. volume":"35474672"},"2017-10-30":{"1. open":"163.8900","2. high":"168.0700","3. low":"163.7200","4. close":"166.7200","5. volume":"43923292"},"2017-10-27":{"1. open":"159.2900","2. high":"163.6000","3. low":"158.7000","4. close":"163.0500","5. volume":"43904150"},"2017-10-26":{"1. open":"157.2300","2. high":"157.8300","3. low":"156.7800","4. close":"157.4100","5. volume":"16751691"},"2017-10-25":{"1. open":"156.9100","2. high":"157.5500","3. low":"155.2700","4. close":"156.4100","5. volume":"20126554"},"2017-10-24":{"1. open":"156.2900","2. high":"157.4200","3. low":"156.2000","4. close":"157.1000","5. volume":"17137731"},"2017-10-23":{"1. open":"156.8900","2. high":"157.6900","3. low":"155.5000","4. close":"156.1700","5. volume":"21654461"},"2017-10-20":{"1. open":"156.6100","2. high":"157.7500","3. low":"155.9600","4. close":"156.2500","5. volume":"23612246"},"2017-10-19":{"1. open":"156.7500","2. high":"157.0800","3. low":"155.0200","4. close":"155.9800","5. volume":"42111326"},"2017-10-18":{"1. open":"160.4200","2. high":"160.7100","3. low":"159.6000","4. close":"159.7600","5. volume":"16158659"},"2017-10-17":{"1. open":"159.7800","2. high":"160.8700","3. low":"159.2300","4. close":"160.4700","5. volume":"18816438"},"2017-10-16":{"1. open":"157.9000","2. high":"160.0000","3. low":"157.6500","4. close":"159.8800","5. volume":"23894630"},"2017-10-13":{"1. open":"156.7300","2. high":"157.2800","3. low":"156.4100","4. close":"156.9900","5. volume":"16287608"},"2017-10-12":{"1. open":"156.3500","2. high":"157.3700","3. low":"155.7300","4. close":"156.0000","5. volume":"16045720"},"2017-10-11":{"1. open":"155.9700","2. high":"156.9800","3. low":"155.7500","4. close":"156.5500","5. volume":"16607693"},"2017-10-10":{"1. open":"156.0600","2. high":"158.0000","3. low":"155.1000","4. close":"155.9000","5. volume":"15456331"},"2017-10-09":{"1. open":"155.8100","2. high":"156.7300","3. low":"155.4900","4. close":"155.8400","5. volume":"16200129"},"2017-10-06":{"1. open":"154.9700","2. high":"155.4900","3. low":"154.5600","4. close":"155.3000","5. volume":"16423749"},"2017-10-05":{"1. open":"154.1800","2. high":"155.4400","3. low":"154.0500","4. close":"155.3900","5. volume":"21032800"},"2017-10-04":{"1. open":"153.6300","2. high":"153.8600","3. low":"152.4600","4. close":"153.4800","5. volume":"19844177"},"2017-10-03":{"1. open":"154.0100","2. high":"155.0900","3. low":"153.9100","4. close":"154.4800","5. volume":"16146388"},"2017-10-02":{"1. open":"154.2600","2. high":"154.4500","3. low":"152.7200","4. close":"153.8100","5. volume":"18524860"},"2017-09-29":{"1. open":"153.2100","2. high":"154.1300","3. low":"152.0000","4. close":"154.1200","5. volume":"25856530"},"2017-09-28":{"1. open":"153.8900","2. high":"154.2800","3. low":"152.7000","4. close":"153.2800","5. volume":"21896592"},"2017-09-27":{"1. open":"153.8000","2. high":"154.7200","3. low":"153.5400","4. close":"154.2300","5. volume":"24959552"},"2017-09-26":{"1. open":"151.7800","2. high":"153.9200","3. low":"151.6900","4. close":"153.1400","5. volume":"35470985"},"2017-09-25":{"1. open":"149.9900","2. high":"151.8300","3. low":"149.1600","4. close":"150.5500","5. volume":"43922334"},"2017-09-22":{"1. open":"151.5400","2. high":"152.2700","3. low":"150.5600","4. close":"151.8900","5. volume":"46114424"},"2017-09-21":{"1. open":"155.8000","2. high":"155.8000","3. low":"152.7500","4. close":"153.3900","5. volume":"36643382"},"2017-09-20":{"1. open":"157.9000","2. high":"158.2600","3. low":"153.8300","4. close":"156.0700","5. volume":"51693239"},"2017-09-19":{"1. open":"159.5100","2. high":"159.7700","3. low":"158.4400","4. close":"158.7300","5. volume":"20347352"},"2017-09-18":{"1. open":"160.1100","2. high":"160.5000","3. low":"158.0000","4. close":"158.6700","5. volume":"27939718"},"2017-09-15":{"1. open":"158.4700","2. high":"160.9700","3. low":"158.0000","4. close":"159.8800","5. volume":"48203642"},"2017-09-14":{"1. open":"158.9900","2. high":"159.4000","3. low":"158.0900","4. close":"158.2800","5. volume":"23073646"},"2017-09-13":{"1. open":"159.8700","2. high":"159.9600","3. low":"157.9100","4. close":"159.6500","5. volume":"44393752"},"2017-09-12":{"1. open":"162.6100","2. high":"163.9600","3. low":"158.7700","4. close":"160.8600","5. volume":"71139119"},"2017-09-11":{"1. open":"160.5000","2. high":"162.0500","3. low":"159.8900","4. close":"161.5000","5. volume":"31028926"},"2017-09-08":{"1. open":"160.8600","2. high":"161.1500","3. low":"158.5300","4. close":"158.6300","5. volume":"28183159"},"2017-09-07":{"1. open":"162.0900","2. high":"162.2400","3. low":"160.3600","4. close":"161.2600","5. volume":"21722995"},"2017-09-06":{"1. open":"162.7100","2. high":"162.9900","3. low":"160.5200","4. close":"161.9100","5. volume":"21179047"},"2017-09-05":{"1. open":"163.7500","2. high":"164.2500","3. low":"160.5600","4. close":"162.0800","5. volume":"29317054"},"2017-09-01":{"1. open":"164.8000","2. high":"164.9400","3. low":"163.6300","4. close":"164.0500","5. volume":"16591051"},"2017-08-31":{"1. open":"163.6400","2. high":"164.5200","3. low":"163.4800","4. close":"164.0000","5. volume":"26785096"},"2017-08-30":{"1. open":"163.8000","2. high":"163.8900","3. low":"162.6100","4. close":"163.3500","5. volume":"26973946"},"2017-08-29":{"1. open":"160.1000","2. high":"163.1200","3. low":"160.0000","4. close":"162.9100","5. volume":"29307862"},"2017-08-28":{"1. open":"160.1400","2. high":"162.0000","3. low":"159.9300","4. close":"161.4700","5. volume":"25279674"},"2017-08-25":{"1. open":"159.6500","2. high":"160.5600","3. low":"159.2700","4. close":"159.8600","5. volume":"25015218"},"2017-08-24":{"1. open":"160.4300","2. high":"160.7400","3. low":"158.5500","4. close":"159.2700","5. volume":"19029621"},"2017-08-23":{"1. open":"159.0700","2. high":"160.4700","3. low":"158.8800","4. close":"159.9800","5. volume":"19198189"},"2017-08-22":{"1. open":"158.2300","2. high":"160.0000","3. low":"158.0200","4. close":"159.7800","5. volume":"21297812"},"2017-08-21":{"1. open":"157.5000","2. high":"157.8900","3. low":"155.1100","4. close":"157.2100","5. volume":"26145653"},"2017-08-18":{"1. open":"157.8600","2. high":"159.5000","3. low":"156.7200","4. close":"157.5000","5. volume":"27012525"},"2017-08-17":{"1. open":"160.5200","2. high":"160.7100","3. low":"157.8400","4. close":"157.8600","5. volume":"26925694"},"2017-08-16":{"1. open":"161.9400","2. high":"162.5100","3. low":"160.1500","4. close":"160.9500","5. volume":"27321761"},"2017-08-15":{"1. open":"160.6600","2. high":"162.2000","3. low":"160.1400","4. close":"161.6000","5. volume":"27936774"},"2017-08-14":{"1. open":"159.3200","2. high":"160.2100","3. low":"158.7500","4. close":"159.8500","5. volume":"21754810"},"2017-08-11":{"1. open":"156.6000","2. high":"158.5700","3. low":"156.0700","4. close":"157.4800","5. volume":"25943187"},"2017-08-10":{"1. open":"159.9000","2. high":"160.0000","3. low":"154.6300","4. close":"155.3200","5. volume":"39081017"},"2017-08-09":{"1. open":"159.2600","2. high":"161.2700","3. low":"159.1100","4. close":"161.0600","5. volume":"25640394"},"2017-08-08":{"1. open":"158.6000","2. high":"161.8300","3. low":"158.2700","4. close":"160.0800","5. volume":"35775675"},"2017-08-07":{"1. open":"157.0600","2. high":"158.9200","3. low":"156.6700","4. close":"158.8100","5. volume":"21870321"},"2017-08-04":{"1. open":"156.0700","2. high":"157.4000","3. low":"155.6900","4. close":"156.3900","5. volume":"20349532"},"2017-08-03":{"1. open":"157.0500","2. high":"157.2100","3. low":"155.0200","4. close":"155.5700","5. volume":"26000738"},"2017-08-02":{"1. open":"159.2800","2. high":"159.7500","3. low":"156.1600","4. close":"157.1400","5. volume":"69222793"},"2017-08-01":{"1. open":"149.1000","2. high":"150.2200","3. low":"148.4100","4. close":"150.0500","5. volume":"24725526"},"2017-07-31":{"1. open":"149.9000","2. high":"150.3300","3. low":"148.1300","4. close":"148.7300","5. volume":"19422655"},"2017-07-28":{"1. open":"149.8900","2. high":"150.2300","3. low":"149.1900","4. close":"149.5000","5. volume":"16832947"},"2017-07-27":{"1. open":"153.7500","2. high":"153.9900","3. low":"147.3000","4. close":"150.5600","5. volume":"32175875"},"2017-07-26":{"1. open":"153.3500","2. high":"153.9300","3. low":"153.0600","4. close":"153.4600","5. volume":"15172136"},"2017-07-25":{"1. open":"151.8000","2. high":"153.8400","3. low":"151.8000","4. close":"152.7400","5. volume":"18612649"},"2017-07-24":{"1. open":"150.5800","2. high":"152.4400","3. low":"149.9000","4. close":"152.0900","5. volume":"21122730"},"2017-07-21":{"1. open":"149.9900","2. high":"150.4400","3. low":"148.8800","4. close":"150.2700","5. volume":"24671002"},"2017-07-20":{"1. open":"151.5000","2. high":"151.7400","3. low":"150.1900","4. close":"150.3400","5. volume":"17053326"},"2017-07-19":{"1. open":"150.4800","2. high":"151.4200","3. low":"149.9500","4. close":"151.0200","5. volume":"20615419"},"2017-07-18":{"1. open":"149.2000","2. high":"150.1300","3. low":"148.6700","4. close":"150.0800","5. volume":"17713795"},"2017-07-17":{"1. open":"148.8200","2. high":"150.9000","3. low":"148.5700","4. close":"149.5600","5. volume":"23243713"},"2017-07-14":{"1. open":"147.9700","2. high":"149.3300","3. low":"147.3300","4. close":"149.0400","5. volume":"31348832"}}};
+		
+		//write(hardCodeData);
+	</script>	
+		
+		
+    <!-----------------php get data for testing not working because of .html file, not php file---------->
+		
+<!--
+	<?php if (isset($_POST['submit'])): ?>	
+	<?php
+           $text = $_POST["text"];			
+					$theURL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=".$text."&outputsize=full&apikey=IBML9TEYLJVP1G94";
+                	$jsonDatas = file_get_contents($theURL, true); 
+                	$phpDatas = json_decode($jsonDatas);	
+		
+		   $arrayDayReverse=array();
+                    $arrayValueReverse=array();
+                    $arrayVolumeReverse=array();
+                    
+                    $thisCounter=0;
+                    foreach($phpDatas->{"Time Series (Daily)"} as $aKey => $aValue) {
+                                
+                    	$dayInDate = (date("m/d",strtotime($aKey)));
+                        array_push($arrayDayReverse,$dayInDate);
+                        $aValueAmount = (float)$aValue->{"4. close"};
+                        array_push($arrayValueReverse,$aValueAmount);
+                        $aVolumeAmount = (float)$aValue->{"5. volume"};
+                        array_push($arrayVolumeReverse,$aVolumeAmount);
+						$thisCounter++;
+						if ($thisCounter > 120) {
+                        	break;
+						}
+                    }
+                            
+    				$arrayDay = array_reverse($arrayDayReverse);
+                    $arrayValue = array_reverse($arrayValueReverse);
+                    $arrayVolume = array_reverse($arrayVolumeReverse);
+    
+                    json_encode($arrayDay);
+                    json_encode($arrayValue);
+                    json_encode($arrayVolume);
+                     
+           		?>
+		<script>
+            
+				var arrayDayJava = <?php echo json_encode($arrayDay);?>;
+				var arrayValueJava = <?php echo json_encode($arrayValue);?>;
+				var arrayVolumeJava = <?php echo json_encode($arrayVolume);?>;
+		</script>>
+-->
+		
+		
+		
+		
+		
+		
+    <script>
+    //get json file from php
+    var jsonFile = {};
+    function ajaxCall() {
+        
+        
+        var text = document.getElementsByName("text")[0].value;
+        
+		
+		$.ajax({
+			type: "GET",
+            url: "http://localhost:8888/", 
+            dataType: "json",
+		  	data: {'stockName': text}, // data mean the symbol that we input, only can send throguh json
+		  	
+			success: function (data) {
+				var jsonFile = jQuery.parseJSON(data);
+				//$('#lblResponse').html(ret.msg);
+				console.log('Success: ')
+				},
+			error: function (xhr, status, error) {
+				console.log('Error: ' + error.message);
+				//$('#lblResponse').html('Error connecting to the server.');
+			},
+		});
+		
+	};
+        //var queryString = "?Symbol=" + text;
+//			$.get( "abc.js", { Symbol: text } )
+//			  .done(function( data ) {
+//			 var json_obj = $.parseJSON(data);//parse JSON 
+//            //    if (localStorage.getItem(json_obj.Symbol)){
+//              //          image.src = "fullStar.png";
+//                //} else image.src = "emptyStar.png";
+//                globalJsonObject = json_obj;
+//                write(json_obj);
+        
+   
+		
+			
+		// use	JSONP as AJAX's datatype
+    
+    </script>	
+		
+	
+		
+	<div id="example" ng-app="KendoDemos">
+    <div class="demo-section k-content" ng-controller="MyCtrl">
+        <h4>Select Country /e.g. Armenia/</h4>
+        <input kendo-auto-complete ng-model="country" k-data-source="countryNames" style="width: 100%;" />
+        <p class="demo-hint">Your selection: {{ country }}</p>
+    </div>
+	</div>
+		
+		
+	<!-- AutoComplete -->
+	<script>
+		angular.module("KendoDemos", [ "kendo.directives" ])
+          .controller("MyCtrl", function($scope){
+              $scope.countryNames = [
+              "Albania",
+              "Andorra",
+              "Armenia",
+              "Austria",
+              "Azerbaijan",
+              "Belarus",
+              "Belgium",
+              "Bosnia & Herzegovina",
+              "Bulgaria",
+              "Croatia",
+              "Cyprus",
+              "Czech Republic",
+              "Denmark",
+              "Estonia",
+              "Finland",
+              "France",
+              "Georgia",
+              "Germany",
+              "Greece",
+              "Hungary",
+              "Iceland",
+              "Ireland",
+              "Italy",
+              "Kosovo",
+              "Latvia",
+              "Liechtenstein",
+              "Lithuania",
+              "Luxembourg",
+              "Macedonia",
+              "Malta",
+              "Moldova",
+              "Monaco",
+              "Montenegro",
+              "Netherlands",
+              "Norway",
+              "Poland",
+              "Portugal",
+              "Romania",
+              "Russia",
+              "San Marino",
+              "Serbia",
+              "Slovakia",
+              "Slovenia",
+              "Spain",
+              "Sweden",
+              "Switzerland",
+              "Turkey",
+              "Ukraine",
+              "United Kingdom",
+              "Vatican City"
+                  ];
+          })
+		
+		
+		
+		
+	</script>
+		
+		
+		
+		
+	</body>
+	
+	
+</html>

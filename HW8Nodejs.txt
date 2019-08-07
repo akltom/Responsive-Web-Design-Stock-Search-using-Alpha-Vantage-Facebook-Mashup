@@ -1,0 +1,172 @@
+// only the json,///,frontPage work
+var http = require('http');
+var fs = require('fs');
+var request = require('request');
+var url = require('url');
+var express = require('express');
+var app = express();
+var Client = require('node-rest-client').Client;
+
+var compression = require('compression');
+const https = require('https');
+
+
+var client = new Client();
+
+
+app.all('*', function(req, res, next) {   // means regular call of server
+	
+    res.header("Access-Control-Allow-Origin", "*"); 
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, datatype");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By",' 3.2.1')
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+});
+
+
+
+
+
+function requestData(url, res) {
+    request(url,
+	    function(error, response, body) {
+	        if (response.statusCode === 200 && !error) {
+	            res.send(body);
+	        }
+	    });
+}
+
+
+
+app.get('///', function (req, res) {
+	res.send('CS571');
+})
+
+app.get('/frontPage', function (req, res) {
+  res.send('Hello from A!');
+})
+
+
+function getAutoComplete(input, res) { // auto complete    // work!!!!!!!    
+    url = "http://dev.markitondemand.com/MODApis/Api/v2/Lookup/json?input=" + input;
+    requestData(url, res);
+}
+
+app.get('/buquan', function(req, res) { //autocomplete   // remember this is input!    // work!!!!   http://localhost:8888/buquan?input=msft
+    var input = req.query.input;
+    if (input == null) {
+        res.send("empty");
+    } else {
+		getAutoComplete(input, res);
+    }
+})
+
+
+function getIndicator(symbol, idx, res) { // indicator   work!!!!!!!!!!!!!
+	url = "https://www.alphavantage.co/query?function=" + idx + "&symbol=" + symbol + "&series_type=open&interval=daily&time_period=10&apikey=IBML9TEYLJVP1G94";
+	requestData(url, res);
+}
+
+app.get('/sku', function(req, res) {  //  /sku, is the indicator    work!!!!!!!!!!!    http://localhost:8888/sku?stockName=msft&idx=MACD
+    var stockName = req.query.stockName;
+    var sku = req.query.sku;
+    var idx = req.query.idx;
+    if (stockName != null) {
+        getIndicator(stockName, idx, res);
+    } else {
+        res.send("empty");
+    }
+})
+
+
+
+
+
+function getdowntable(stockName, res) { // news  can not display in web, maybe due to xml file?     http://localhost:8888/down?stockName=msft
+	url = "https://seekingalpha.com/api/sa/combined/" + stockName + ".xml";
+	requestData(url, res);
+}
+
+app.get('/down', function(req, res) { // news
+    var stockName = req.query.stockName;
+    if (stockName == null) {
+        res.send("empty");
+    } else {
+		getdowntable(stockName, res);
+    }
+})
+
+//app.get('/down', function(req, res) { //news
+//    var stockName = req.query.stockName;
+//    if (stockName != null) {
+//        getdowntable(stockName, res);
+//    } else {
+//        res.send("empty");
+//    }
+//})
+//
+//function getDowntableUrl(symbol) { // news
+//	return "https://seekingalpha.com/api/sa/combined/" + symbol + ".xml";
+//}
+//function getdowntable(stockName, res) { //news
+//	url = getDowntableUrl(stockName);
+//	requestData(url, res);
+//
+//}
+
+
+
+
+
+
+
+
+app.get('/jsonfile', function (req, res) {   http://localhost:8888/jsonFile?text=aapl
+	var symbol = req.query.text;
+	var getsymbol = url.parse(req.url, true);
+  	// parsed response body as js object 
+  	console.log(getsymbol.query.text);
+  	// raw response 
+  	//console.log(res);
+  	client.get("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="+symbol+"&apikey=IBML9TEYLJVP1G94", function (data, response) {
+	
+	// testing link for backend:   then change appl to whatever companies
+	// http://localhost:8888/jsonFile?text=aapl
+	res.send(data);// or use write......
+	  
+  })
+ 
+})
+
+
+function seeStockData(stockName, res) {  // seeStockData = readate
+	var url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&outputsize=full&symbol=';
+	url += stockName;
+    url += '&apikey=IBML9TEYLJVP1G94';
+	requestData(url, res);
+};
+
+app.get('/', function(req, res) {  //  work!!!!     http://localhost:8888/?stockName=msft
+    var stockName = req.query.stockName;  
+    if (stockName == null) {
+        res.send("empty");
+    } else {
+		seeStockData(stockName, res);
+    }
+})
+
+app.get('/start', function(req, res) { // /start = /init   work!!! display msft  http://localhost:8888/start?stockName=msft
+    var stockName = req.query.stockName;
+    if (stockName == null) {
+        res.send("empty");
+    } else {
+		res.send(stockName);
+    }
+})
+
+app.use(compression())
+
+app.listen(8888, function(){
+	console.log("launching");
+})
